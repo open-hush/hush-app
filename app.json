@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Hush",
+    "slug": "hush-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "hush",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a0a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.openhush.app",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "Hush uses Bluetooth to set up a new device by sending it your WiFi credentials.",
+        "NSBluetoothPeripheralUsageDescription": "Hush uses Bluetooth to set up a new device by sending it your WiFi credentials.",
+        "NSLocalNetworkUsageDescription": "Hush uses your local network to find a newly-paired device once it joins WiFi."
+      }
+    },
+    "android": {
+      "package": "com.openhush.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0a0a"
+      },
+      "permissions": [
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.INTERNET"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://localhost:8080"
+    }
+  }
+}
