@@ -72,14 +72,6 @@ Wrap the fetch in a thin client (`lib/api/client.ts`) that:
 - Android 12+ (`API 31`) needs runtime `BLUETOOTH_SCAN` and `BLUETOOTH_CONNECT`; pre-31 wants `ACCESS_FINE_LOCATION`. The wrapper in `lib/ble/improv.ts` handles both.
 - Improv WiFi spec: <https://www.improv-wifi.com/ble/>.
 
-## Pivot to Flutter — when, not whether
-
-If `react-native-ble-plx` proves unworkable in phase 3 (see [`PLAN.md`](./PLAN.md)):
-
-1. Stop and tell the maintainer.
-2. Document exactly what failed (which OS, which devices, which characteristic operations).
-3. Wait for explicit approval to start the Flutter port. Do not "just try it" yourself.
-
 ## Open decisions — ask, do not invent
 
 - EAS Update strategy (OTA fixes vs store-only).

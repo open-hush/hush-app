@@ -92,12 +92,6 @@ The Hush dashboard ([`hush-backend/dashboard`](https://github.com/open-hush/hush
 
 ---
 
-## Plan B — Flutter pivot
-
-If, in phase 3, BLE on `react-native-ble-plx` proves unworkable (instability across iOS / Android, missing Improv-WiFi support), we will pivot to **Flutter** and document the migration in [`PLAN.md`](./PLAN.md). Until then, Expo is the path.
-
----
-
 ## Status
 
 **Phase 0** — scaffolding only. Every screen is a stub. See [`PLAN.md`](./PLAN.md).

@@ -2,9 +2,9 @@
 
 This is the mobile app for the Hush ecosystem: pair devices over BLE, manage the audio library, bind RFID cards.
 
-## Stack decision
+## Stack
 
-**Default**: Expo (React Native + TypeScript).
+Expo (React Native + TypeScript).
 
 | Concern | Choice |
 |---|---|
@@ -19,8 +19,6 @@ This is the mobile app for the Hush ecosystem: pair devices over BLE, manage the
 | BLE | `react-native-ble-plx` (phase 3) |
 | Push | Expo Notifications (phase 5) |
 | Distribution | EAS Build (preview + production) |
-
-**Plan B**: Flutter, **only if** Expo + `react-native-ble-plx` proves unworkable for the BLE pairing flow. The pivot is documented under [Decisions open](#decisions-open).
 
 ---
 
@@ -60,7 +58,6 @@ Acceptance: a user can take an unconfigured device out of the box, pair it via B
   1. `pairing/scan.tsx` — list nearby Hush devices in pairing mode.
   2. `pairing/wifi.tsx` — collect SSID + password.
   3. `pairing/confirm.tsx` — wait for device to report online, then `POST /v1/devices/{id}/claim`.
-- [ ] **Decision point**: if `react-native-ble-plx` fails (see decisions below), invoke the Flutter plan.
 
 ## Phase 4 — Card assignment (~1-2 weeks)
 
@@ -95,7 +92,6 @@ Acceptance: signed builds in the App Store and Play Store, with push notificatio
 
 ## Decisions open
 
-- **Flutter pivot trigger**: if BLE Improv-WiFi via `react-native-ble-plx` proves flaky across both platforms after a week of effort, pivot. The decision is made by the maintainer, not silently.
 - **EAS Update**: do we ship OTA JS updates via EAS Update, or only do full store releases? Lean: EAS Update for bug fixes, store releases for feature changes.
 - **Design system**: stick with NativeWind primitives (cheap, accessible) or invest in a component library (e.g. tamagui, gluestack)? Lean: primitives now, revisit if the dashboard's shadcn pattern shows large UX gaps.
 - **Push provider**: Expo Notifications wraps FCM + APNs. Stick with Expo, or talk directly to FCM/APNs for finer control? Lean: stay with Expo until a concrete blocker appears.
