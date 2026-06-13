@@ -4,6 +4,7 @@
   "private": true,
   "description": "Hush mobile app (Expo + React Native + TypeScript).",
   "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
