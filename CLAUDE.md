@@ -18,21 +18,21 @@ You are working on the **Hush mobile app**: Expo (React Native + TypeScript), fi
 BLE does not work in Expo Go. Once you start the pairing flow, switch to a **Dev Client** build:
 
 ```bash
-npx expo run:ios     # one-time native build
-npx expo run:android # one-time native build
-npx expo start --dev-client
+pnpm expo run:ios     # one-time native build
+pnpm expo run:android # one-time native build
+pnpm expo start --dev-client
 ```
 
 ## Common commands
 
 ```bash
-npm install
-npm start                # Metro bundler; press i/a for sim/emulator
-npm run ios              # native build + simulator
-npm run android          # native build + emulator
-npm run typecheck        # tsc --noEmit
-npm run lint             # expo lint
-npm run gen:api          # OpenAPI client from ../hush-protocol/hush-api.yaml
+pnpm install
+pnpm start                # Metro bundler; press i/a for sim/emulator
+pnpm run ios              # native build + simulator
+pnpm run android          # native build + emulator
+pnpm run typecheck        # tsc --noEmit
+pnpm run lint             # expo lint
+pnpm gen:api              # OpenAPI client from ../hush-protocol/hush-api.yaml
 
 # EAS (cloud builds; requires `eas login` first)
 eas build --profile preview
@@ -51,7 +51,7 @@ eas update --branch production
 ## API client — generated, never hand-written
 
 ```bash
-npm run gen:api
+pnpm gen:api
 # reads ../hush-protocol/hush-api.yaml → lib/api/schema.ts
 ```
 

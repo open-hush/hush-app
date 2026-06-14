@@ -25,22 +25,26 @@ Hush is an open-source RFID-activated audio device for children — see [open-hu
 ## Quick start
 
 ```bash
-npm install
+pnpm install
 
 # Start the Metro bundler. Pick a target with `i` (iOS Simulator), `a`
 # (Android Emulator), or scan the QR code with the Expo Go app.
-npm start
+pnpm start
 
 # Or run directly on a connected device / simulator:
-npx expo run:ios
-npx expo run:android
+pnpm expo run:ios
+pnpm expo run:android
 ```
+
+> This project uses [**pnpm**](https://pnpm.io). If you don't have it,
+> `corepack enable` (bundled with Node) will pick up the version pinned in
+> `package.json`'s `packageManager` field.
 
 > **Heads up**: from **phase 3** onwards (BLE pairing), the Expo Go app is no longer enough. You'll need a **Dev Client** build:
 >
 > ```bash
-> npx expo run:ios       # one-time setup
-> npx expo start --dev-client
+> pnpm expo run:ios       # one-time setup
+> pnpm expo start --dev-client
 > ```
 
 ---
@@ -84,7 +88,7 @@ hush-app/
 Types are generated from [`hush-protocol/hush-api.yaml`](https://github.com/open-hush/hush-protocol):
 
 ```bash
-npm run gen:api
+pnpm gen:api
 # writes lib/api/schema.ts
 ```
 

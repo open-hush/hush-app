@@ -24,7 +24,7 @@ Expo (React Native + TypeScript).
 
 ## Phase 1 — Navigable shell (~1 week)
 
-Acceptance: `npx expo start` boots the app, every screen renders its placeholder, navigation between routes works.
+Acceptance: `pnpm expo start` boots the app, every screen renders its placeholder, navigation between routes works.
 
 - [x] Project scaffolded with Expo SDK 52.
 - [x] Expo Router file-based routes for `(auth)`, `(tabs)`, `pairing/`.
@@ -32,7 +32,7 @@ Acceptance: `npx expo start` boots the app, every screen renders its placeholder
 - [x] TypeScript strict, paths alias `@/*` → repo root.
 - [ ] EAS project configured (`eas init`); preview + production profiles in `eas.json`.
 - [ ] App icon, splash and adaptive icon designed (placeholders today).
-- [ ] `npx expo-doctor` clean.
+- [ ] `pnpm dlx expo-doctor` clean.
 
 ## Phase 2 — Auth and device management (~2 weeks)
 
@@ -49,7 +49,7 @@ Acceptance: a user can register, log in, see their list of devices, see audio li
 
 Acceptance: a user can take an unconfigured device out of the box, pair it via BLE, send WiFi credentials, and see the device come online in the dashboard.
 
-- [ ] Migrate to **Dev Client** (`npx expo run:ios` and `npx expo run:android` once).
+- [ ] Migrate to **Dev Client** (`pnpm expo run:ios` and `pnpm expo run:android` once).
 - [ ] iOS Bluetooth permission strings (already in `app.json`).
 - [ ] Android permissions: `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT`, `ACCESS_FINE_LOCATION` (runtime).
 - [ ] BLE scan filter on Improv WiFi service UUID.
@@ -101,7 +101,7 @@ Acceptance: signed builds in the App Store and Play Store, with push notificatio
 
 ## Cross-repo touch points
 
-- **`hush-protocol`**: every spec change requires `npm run gen:api`. CI will gate this.
+- **`hush-protocol`**: every spec change requires `pnpm gen:api`. CI will gate this.
 - **`hush-backend`**: same auth model as the dashboard (JWT + refresh), same endpoints.
 - **`hush-device`**: BLE Improv WiFi service UUIDs and characteristic shapes (phase 3) must match the firmware exactly.
 
