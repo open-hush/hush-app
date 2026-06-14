@@ -35,7 +35,7 @@
     "react-hook-form": "^7.53.0",
     "zod": "^3.23.0",
     "@hookform/resolvers": "^3.9.0",
-    "nativewind": "^4.1.21",
+    "nativewind": "4.1.23",
     "tailwindcss": "^3.4.14"
   },
   "devDependencies": {
