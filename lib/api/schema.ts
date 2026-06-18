@@ -80,6 +80,13 @@ export interface paths {
          *     the dashboard). The response is the **complete current state**: cards,
          *     audio items with presigned URLs, power-saving thresholds and feature
          *     flags. Clients diff against their cached version.
+         *
+         *     Two callers are accepted:
+         *     - A **physical device** authenticating with `deviceHmac`; the device is
+         *       resolved from the HMAC `keyId`.
+         *     - A **user app acting as a device** authenticating with `userJwt`. In
+         *       this case `device_id` is **required** and must reference a claimed
+         *       device owned by the caller.
          */
         get: operations["syncDevice"];
         put?: never;
@@ -103,8 +110,41 @@ export interface paths {
          * Push a batch of events from the device.
          * @description Devices buffer events (card scans, button presses, errors) locally and
          *     flush them in batches. The endpoint is idempotent on `eventId`.
+         *
+         *     Two callers are accepted:
+         *     - A **physical device** authenticating with `deviceHmac`; the device is
+         *       resolved from the HMAC `keyId`.
+         *     - A **user app acting as a device** authenticating with `userJwt`. In
+         *       this case `device_id` is **required** and must reference a claimed
+         *       device owned by the caller.
          */
         post: operations["postDeviceEvents"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List user accounts (admin only).
+         * @description Admin-only directory of every account. The caller must present a valid
+         *     `admin` bearer token; an unauthenticated request gets `401` and an
+         *     authenticated non-admin gets `403`.
+         *
+         *     Results are ordered newest-first and paginated by opaque cursor: pass
+         *     the previous response's `nextCursor` back as the `cursor` query param to
+         *     fetch the next page. A response without `nextCursor` is the last page.
+         */
+        get: operations["listUsers"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -130,9 +170,10 @@ export interface paths {
          *     There is no public self-registration. An unauthenticated request gets
          *     `401`; an authenticated non-admin gets `403`.
          *
-         *     The new account always has the non-privileged `user` role — the role is
-         *     never read from the request, so this endpoint can never mint an `admin`.
-         *     Admin accounts are seeded at boot only (see `BOOTSTRAP_ADMIN_*`).
+         *     The optional `role` field lets an admin choose the new account's role
+         *     (`admin` or `user`). When omitted it defaults to `user`. This is the
+         *     only path to mint an `admin` from the dashboard; the bootstrap seed
+         *     (`BOOTSTRAP_ADMIN_*`) remains for first-boot provisioning.
          */
         post: operations["registerUser"];
         delete?: never;
@@ -246,10 +287,26 @@ export interface paths {
         get: operations["getDevice"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Retire (remove) a device owned by the authenticated user.
+         * @description Soft-deletes the device: it transitions to `retired`, stops syncing
+         *     and disappears from the owner's device list. Ownership is preserved so
+         *     the action can be reversed by support — the hardware identity and its
+         *     secret survive, the unit is never destroyed. Scoped to the caller: a
+         *     device owned by another user (or already retired) responds `404`.
+         */
+        delete: operations["retireDevice"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update a device owned by the authenticated user.
+         * @description Renames a claimed device. Only the user-chosen `name` is mutable; the
+         *     serial, state and firmware version are owned by the device lifecycle
+         *     and cannot be changed here. Scoped to the caller: a device owned by
+         *     another user (or already retired) responds `404`, never `403`, so the
+         *     endpoint does not leak which device ids exist.
+         */
+        patch: operations["updateDevice"];
         trace?: never;
     };
     "/v1/devices/{id}/claim": {
@@ -356,7 +413,14 @@ export interface paths {
         get: operations["getAudio"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete an audio item.
+         * @description Permanently removes the audio metadata and its stored objects (the raw
+         *     upload and the transcoded MP3). Any card bindings that reference this
+         *     audio are removed as well (cascade). Only the owner may delete their
+         *     own audio; deleting another user's audio returns `404`.
+         */
+        delete: operations["deleteAudio"];
         options?: never;
         head?: never;
         patch?: never;
@@ -523,6 +587,14 @@ export interface components {
             /** Format: password */
             password: string;
             displayName?: string;
+            /**
+             * @description Role for the new account. Optional; defaults to `user` when omitted.
+             *     Only an admin caller can reach this endpoint, so this is the path to
+             *     create another `admin` from the dashboard.
+             * @default user
+             * @enum {string}
+             */
+            role: "admin" | "user";
         };
         UserLoginRequest: {
             /** Format: email */
@@ -544,13 +616,17 @@ export interface components {
             displayName?: string;
             /**
              * @description Authorization role. `user` is an ordinary end-user scoped to their
-             *     own resources; `admin` has global privileges. Self-registration
-             *     always yields `user`.
+             *     own resources; `admin` has global privileges. New accounts default
+             *     to `user` unless an admin explicitly creates an `admin`.
              * @enum {string}
              */
             role: "admin" | "user";
             /** Format: date-time */
             createdAt: string;
+        };
+        UserList: {
+            items: components["schemas"]["User"][];
+            nextCursor?: string;
         };
         Device: {
             /** Format: uuid */
@@ -590,6 +666,14 @@ export interface components {
         DeviceClaimRequest: {
             claimCode: string;
             name?: string;
+        };
+        /**
+         * @description Mutable device fields. Only the user-chosen name can be changed;
+         *     serial, state and firmware are managed by the device lifecycle.
+         */
+        DeviceUpdateRequest: {
+            /** @description New device name. Send null to clear it. */
+            name?: string | null;
         };
         DeviceSyncResponse: {
             /** Format: date-time */
@@ -939,6 +1023,24 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description The request is malformed or missing a required parameter. */
+        BadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Authenticated, but not allowed to act on this resource. */
+        Forbidden: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
         /** @description Resource not found. */
         NotFound: {
             headers: {
@@ -1115,6 +1217,12 @@ export interface operations {
             query?: {
                 /** @description ISO-8601 timestamp of the last successful sync. If omitted, a full snapshot is returned. */
                 since?: string;
+                /**
+                 * @description Target device UUID. Ignored for `deviceHmac` callers (the device is
+                 *     taken from the signature). **Required** for `userJwt` callers and
+                 *     must reference a claimed device owned by the caller.
+                 */
+                device_id?: string;
             };
             header?: never;
             path?: never;
@@ -1138,12 +1246,21 @@ export interface operations {
                 };
                 content?: never;
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     postDeviceEvents: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description Target device UUID. Ignored for `deviceHmac` callers (the device is
+                 *     taken from the signature). **Required** for `userJwt` callers and
+                 *     must reference a claimed device owned by the caller.
+                 */
+                device_id?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1161,9 +1278,44 @@ export interface operations {
                 };
                 content?: never;
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["TooManyRequests"];
+        };
+    };
+    listUsers: {
+        parameters: {
+            query?: {
+                /** @description Opaque pagination cursor returned by a previous response. */
+                cursor?: components["parameters"]["Cursor"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of user accounts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserList"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description The caller is authenticated but is not an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
     registerUser: {
@@ -1371,6 +1523,59 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    retireDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Device identifier (UUID). */
+                id: components["parameters"]["DeviceId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Device retired. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Device identifier (UUID). */
+                id: components["parameters"]["DeviceId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated device. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Device"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["Unprocessable"];
+        };
+    };
     claimDevice: {
         parameters: {
             query?: never;
@@ -1561,6 +1766,28 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Audio"];
                 };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteAudio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Audio deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
