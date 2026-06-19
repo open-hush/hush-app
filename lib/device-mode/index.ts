@@ -6,3 +6,11 @@ export {
     useDeviceSync,
 } from './useDeviceSync';
 export { useDeviceEvents } from './events';
+export {
+    AudioPlayer,
+    audioPlayer,
+    type PlaybackEvent,
+    type PlaybackEventListener,
+    type PlaybackFinishedReason,
+} from './audio';
+export { type PlayCardResult, usePlayback } from './usePlayback';
