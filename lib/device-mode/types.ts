@@ -25,6 +25,9 @@ export type DeviceEvent = components["schemas"]["DeviceEvent"];
 /** Card placed on the reader. */
 export type DeviceEventCardScanned = components["schemas"]["DeviceEventCardScanned"];
 
+/** Card scanned whose UID is not bound to any audio on this device. */
+export type DeviceEventCardUnknown = components["schemas"]["DeviceEventCardUnknown"];
+
 /** Playback of a bound track began. */
 export type DeviceEventPlaybackStarted = components["schemas"]["DeviceEventPlaybackStarted"];
 

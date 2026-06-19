@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useEffect } from "react";
-import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
 import { useDevices } from "@/lib/api/devices";
 import { useDeviceModeStore } from "@/lib/device-mode";
@@ -74,7 +74,7 @@ export default function DeviceModeScreen() {
       </View>
 
       <Pressable
-        onPress={openCardScan}
+        onPress={() => router.push("/device-mode/scan")}
         className="rounded-2xl bg-indigo-600 px-6 py-4"
       >
         <Text className="text-center text-base font-semibold text-white">
@@ -91,14 +91,5 @@ export default function DeviceModeScreen() {
         </Text>
       </Pressable>
     </View>
-  );
-}
-
-function openCardScan() {
-  // Entry point for the card-scan flow. The scan screen ships in OPE-41; once
-  // its route exists this becomes `router.push("/device-mode/scan")`.
-  Alert.alert(
-    "Card scanning",
-    "Card scanning will be available in an upcoming update.",
   );
 }
