@@ -14,7 +14,7 @@ export type CardBinding = components["schemas"]["CardBinding"];
 /** One audio track in a sync payload, with its presigned download URL. */
 export type AudioSyncEntry = components["schemas"]["AudioSyncEntry"];
 
-/** Full sync payload returned by `GET /v1/device/{id}/sync`. */
+/** Full sync payload returned by `GET /v1/device/sync?device_id=...`. */
 export type DeviceSyncResponse = components["schemas"]["DeviceSyncResponse"];
 
 // --- Events --------------------------------------------------------------
