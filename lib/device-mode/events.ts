@@ -5,12 +5,14 @@ import { api } from "@/lib/api/client";
 import { useDeviceModeStore } from "@/lib/device-mode/store";
 import type {
   DeviceEventCardScanned,
+  DeviceEventCardUnknown,
   DeviceEventPlaybackFinished,
   DeviceEventPlaybackStarted,
 } from "@/lib/device-mode/types";
 
 type SupportedDeviceEvent =
   | DeviceEventCardScanned
+  | DeviceEventCardUnknown
   | DeviceEventPlaybackStarted
   | DeviceEventPlaybackFinished;
 
@@ -31,6 +33,15 @@ function generateTimestamp(): string {
 function buildCardScannedEvent(uid: string): DeviceEventCardScanned {
   return {
     type: "card_scanned",
+    payload: { uid },
+    eventId: generateEventId(),
+    ts: generateTimestamp(),
+  };
+}
+
+function buildCardUnknownEvent(uid: string): DeviceEventCardUnknown {
+  return {
+    type: "card_unknown",
     payload: { uid },
     eventId: generateEventId(),
     ts: generateTimestamp(),
@@ -139,6 +150,13 @@ export function useDeviceEvents() {
     [reportEvent],
   );
 
+  const reportCardUnknown = useCallback(
+    (uid: string) => {
+      reportEvent(buildCardUnknownEvent(uid));
+    },
+    [reportEvent],
+  );
+
   const reportPlaybackStarted = useCallback(
     (audioId: string) => {
       reportEvent(buildPlaybackStartedEvent(audioId));
@@ -160,6 +178,7 @@ export function useDeviceEvents() {
   return {
     reportEvent,
     reportCardScanned,
+    reportCardUnknown,
     reportPlaybackStarted,
     reportPlaybackFinished,
     queueLength: queue.length,
