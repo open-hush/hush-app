@@ -38,12 +38,16 @@ Acceptance: `pnpm expo start` boots the app, every screen renders its placeholde
 
 Acceptance: a user can register, log in, see their list of devices, see audio library and profile.
 
-- [ ] OpenAPI TypeScript client generated from `hush-protocol/hush-api.yaml`.
-- [ ] Tanstack Query setup with custom fetch wrapper that adds the Bearer token.
-- [ ] `expo-secure-store` for access + refresh tokens; auto-refresh on 401.
-- [ ] Login + Register screens with `react-hook-form` + Zod validation.
-- [ ] Devices list (`GET /v1/devices`), Audio list (`GET /v1/audio`), Profile (`GET /v1/users/me`).
-- [ ] Logout clears storage and routes back to login.
+- [x] OpenAPI TypeScript client generated from `hush-protocol/hush-api.yaml`.
+- [x] Tanstack Query setup with custom fetch wrapper that adds the Bearer token.
+- [x] `expo-secure-store` for access + refresh tokens; auto-refresh on 401.
+- [x] Login screen with `react-hook-form` + Zod validation. **No Register screen:**
+      the spec makes account creation admin-only (`POST /v1/users/register`,
+      "no public self-registration") and the codebase already removed it
+      (`feat/remove-public-registration`). Admin user-creation belongs in the
+      dashboard, not the mobile app.
+- [x] Devices list (`GET /v1/devices`), Audio list (`GET /v1/audio`), Profile (`GET /v1/users/me`).
+- [x] Logout clears storage and routes back to login.
 
 ## Phase 3 — BLE Improv WiFi pairing (~2-3 weeks)
 

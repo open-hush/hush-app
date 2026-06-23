@@ -48,9 +48,16 @@ export function DeviceListItem({ device, onPress, selected }: Props) {
       {device.name ? (
         <Text className="mt-0.5 text-xs text-neutral-500">{device.serial}</Text>
       ) : null}
-      <Text className="mt-1 text-xs text-neutral-400">
-        Last seen: {formatLastSeen(device.lastSeenAt)}
-      </Text>
+      <View className="mt-1 flex-row items-center justify-between gap-3">
+        <Text className="text-xs text-neutral-400">
+          Last seen: {formatLastSeen(device.lastSeenAt)}
+        </Text>
+        {device.firmwareVersion ? (
+          <Text className="text-xs text-neutral-400">
+            fw {device.firmwareVersion}
+          </Text>
+        ) : null}
+      </View>
     </Pressable>
   );
 }

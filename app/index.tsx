@@ -1,7 +1,13 @@
 import { Redirect } from "expo-router";
 
-// Phase 1 stub: until auth is wired, send everyone to login.
-// Phase 2 will gate this on token presence (Zustand auth store).
+import { useAuthStore } from "@/lib/auth/store";
+
+/**
+ * Landing route. The root layout has already settled the session by the time
+ * this renders, so the access token in memory is the source of truth: send
+ * authenticated users into the tabs and everyone else to login.
+ */
 export default function Index() {
-  return <Redirect href="/login" />;
+  const accessToken = useAuthStore((s) => s.accessToken);
+  return <Redirect href={accessToken ? "/devices" : "/login"} />;
 }
