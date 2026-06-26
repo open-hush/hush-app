@@ -46,6 +46,14 @@ export default function DeviceModeScreen() {
             Select a device
           </Text>
         </Pressable>
+        <Pressable
+          onPress={() => router.push("/device-mode/register")}
+          className="px-6 py-3"
+        >
+          <Text className="text-base font-semibold text-indigo-600">
+            Register this phone as a device
+          </Text>
+        </Pressable>
       </View>
     );
   }
@@ -88,6 +96,15 @@ export default function DeviceModeScreen() {
       >
         <Text className="text-center text-base font-semibold text-neutral-700">
           Switch device
+        </Text>
+      </Pressable>
+
+      <Pressable
+        onPress={() => router.push("/device-mode/register")}
+        className="px-6 py-2"
+      >
+        <Text className="text-center text-base font-semibold text-indigo-600">
+          Register this phone as a device
         </Text>
       </Pressable>
     </View>
