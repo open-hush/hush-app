@@ -55,10 +55,21 @@ export interface paths {
         put?: never;
         /**
          * First-boot registration of a device.
-         * @description Called once by the firmware right after WiFi credentials have been
-         *     provisioned via BLE. The device proves possession of its baked-in
-         *     per-device secret via HMAC and receives a device-scoped token plus
-         *     the initial sync payload.
+         * @description Registers a new device and returns it in the `unclaimed` state together
+         *     with a `claimCode` the user enters to claim it.
+         *
+         *     Two callers are accepted:
+         *     - A **physical device** authenticating with `deviceHmac`. Called once by
+         *       the firmware right after WiFi credentials have been provisioned via
+         *       BLE; the device proves possession of its baked-in per-device secret via
+         *       HMAC. The `virtual` field is ignored and treated as `false`.
+         *     - A **user app acting as a virtual device** authenticating with
+         *       `userJwt`. The app sends `virtual: true` to register itself as a
+         *       software-only device for the authenticated user.
+         *
+         *     Idempotent on `serial`: re-registering an existing device returns the
+         *     current record. `claimCode` is present only while the device is
+         *     `unclaimed`.
          */
         post: operations["registerDevice"];
         delete?: never;
@@ -725,10 +736,19 @@ export interface components {
             firmwareVersion: string;
             /** @description BLE MAC address, lowercase hex with colons. */
             macAddress?: string;
+            /**
+             * @description Whether this is a software-only device registered by a user app via
+             *     `userJwt`. Ignored (treated as `false`) for `deviceHmac` callers.
+             * @default false
+             */
+            virtual: boolean;
         };
         DeviceRegisterResponse: {
             device: components["schemas"]["Device"];
-            /** @description Short-lived code shown to the user during pairing. */
+            /**
+             * @description Short-lived code shown to the user during pairing. Present only while
+             *     `device.state` is `unclaimed`; omitted once the device is claimed.
+             */
             claimCode?: string;
         };
         DeviceClaimRequest: {
