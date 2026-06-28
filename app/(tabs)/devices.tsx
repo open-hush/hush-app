@@ -37,7 +37,10 @@ export default function DevicesScreen() {
           ) : (
             devices.map((device) => (
               <View key={device.id} className="gap-2">
-                <DeviceListItem device={device} />
+                <DeviceListItem
+                  device={device}
+                  onPress={() => router.push(`/devices/${device.id}`)}
+                />
                 {device.state === "claimed" ? (
                   <Pressable
                     onPress={() =>
