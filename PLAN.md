@@ -85,10 +85,20 @@ Acceptance: a user can take an unconfigured device out of the box, pair it via B
 
 Acceptance: a user can scan an unknown RFID UID seen by their device and bind it to an audio item.
 
-- [ ] Subscribe to `device_events` (poll for now; SSE / push later).
-- [ ] Surface `card_unknown` events in a "to-bind" list.
-- [ ] Binding flow: tap unknown card → pick an audio item → `POST /v1/devices/{id}/cards`.
-- [ ] Unbinding from the device detail screen.
+- [x] Subscribe to `device_events` (poll for now; SSE / push later).
+      `useCardUnknownEvents` polls `GET /v1/devices/{id}/events?type=card_unknown`
+      every 5s while the "cards to bind" screen is mounted (`lib/api/events.ts`).
+- [x] Surface `card_unknown` events in a "to-bind" list
+      (`app/devices/[id]/unknown.tsx`). UIDs already in the device's bindings are
+      subtracted — a card drops out once bound — and repeats of the same UID
+      collapse to one row.
+- [x] Binding flow: tap unknown card → pick a `ready` audio item →
+      `POST /v1/devices/{id}/cards` (`app/devices/[id]/bind.tsx`, `useBindCard`).
+- [x] Unbinding from the device detail screen (`app/devices/[id]/index.tsx`,
+      `useUnbindCard` → `DELETE /v1/devices/{id}/cards/{uid}`).
+- [ ] Native/device pass: the flow is host-validated (typecheck, lint, jest) but
+      not yet exercised against real firmware reporting `card_unknown` events on
+      a Dev Client build.
 
 ## Phase 5 — Push, polish, stores (~2 weeks)
 

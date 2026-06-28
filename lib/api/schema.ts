@@ -320,6 +320,37 @@ export interface paths {
         patch: operations["updateDevice"];
         trace?: never;
     };
+    "/v1/devices/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Device identifier (UUID). */
+                id: components["parameters"]["DeviceId"];
+            };
+            cookie?: never;
+        };
+        /**
+         * List events recorded for a device.
+         * @description Returns the events the device has pushed via `POST /v1/device/events`
+         *     (card scans, button presses, errors). The mobile app uses it with
+         *     `type=card_unknown` to build the "cards to bind" list.
+         *
+         *     Scoped to the caller: a device owned by another user (or unknown)
+         *     responds `404`, never `403`, so the endpoint does not leak which device
+         *     ids exist. Results are ordered newest-first by `ts` and paginated by
+         *     opaque cursor — pass the previous response's `nextCursor` back as the
+         *     `cursor` query param. A response without `nextCursor` is the last page.
+         */
+        get: operations["listDeviceEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/devices/{id}/claim": {
         parameters: {
             query?: never;
@@ -781,6 +812,10 @@ export interface components {
         };
         DeviceEventsRequest: {
             events: components["schemas"]["DeviceEvent"][];
+        };
+        DeviceEventList: {
+            items: components["schemas"]["DeviceEvent"][];
+            nextCursor?: string;
         };
         /**
          * @description A single event emitted by the firmware. The wire shape is a
@@ -1653,6 +1688,39 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
             422: components["responses"]["Unprocessable"];
+        };
+    };
+    listDeviceEvents: {
+        parameters: {
+            query?: {
+                /** @description Opaque pagination cursor returned by a previous response. */
+                cursor?: components["parameters"]["Cursor"];
+                /**
+                 * @description Filter to a single event type (e.g. `card_unknown`). When omitted,
+                 *     every event type is returned.
+                 */
+                type?: "card_scanned" | "card_unknown" | "playback_started" | "playback_finished" | "button_pressed" | "low_battery" | "error";
+            };
+            header?: never;
+            path: {
+                /** @description Device identifier (UUID). */
+                id: components["parameters"]["DeviceId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of device events, newest first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceEventList"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
         };
     };
     claimDevice: {
