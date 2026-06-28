@@ -53,15 +53,33 @@ Acceptance: a user can register, log in, see their list of devices, see audio li
 
 Acceptance: a user can take an unconfigured device out of the box, pair it via BLE, send WiFi credentials, and see the device come online in the dashboard.
 
-- [ ] Migrate to **Dev Client** (`pnpm expo run:ios` and `pnpm expo run:android` once).
-- [ ] iOS Bluetooth permission strings (already in `app.json`).
-- [ ] Android permissions: `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT`, `ACCESS_FINE_LOCATION` (runtime).
-- [ ] BLE scan filter on Improv WiFi service UUID.
-- [ ] Improv WiFi state machine implementation in `lib/ble/improv.ts`. Reference: <https://www.improv-wifi.com/ble/>.
-- [ ] Pairing flow:
+- [x] Dev Client deps + config: `react-native-ble-plx` plugin in `app.json`
+      (`pnpm expo run:ios` / `run:android` not yet exercised — no native build
+      environment in the implementing session; needs a bench/device pass).
+- [x] iOS Bluetooth permission strings (`app.json`).
+- [x] Android permissions: `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT`,
+      `ACCESS_FINE_LOCATION`, requested at runtime per API level
+      (`lib/ble/permissions.ts`).
+- [x] BLE scan filter on Improv WiFi service UUID (`lib/ble/transport.ts`).
+- [x] Improv WiFi protocol + client state machine in `lib/ble/improv.ts`,
+      byte-for-byte against `hush-device/src/proto/improv.rs`. Host-tested
+      (`lib/ble/improv.test.ts`, `lib/ble/base64.test.ts` — 41 cases).
+- [x] Pairing flow screens:
   1. `pairing/scan.tsx` — list nearby Hush devices in pairing mode.
-  2. `pairing/wifi.tsx` — collect SSID + password.
-  3. `pairing/confirm.tsx` — wait for device to report online, then `POST /v1/devices/{id}/claim`.
+  2. `pairing/wifi.tsx` — connect over BLE + collect SSID + password.
+  3. `pairing/confirm.tsx` — send credentials, wait for Improv `Provisioned`,
+     then claim.
+- [ ] **OPEN DECISION (blocks claim):** after pairing the app has no source for
+      the device UUID that `POST /v1/devices/{id}/claim` requires. The current
+      firmware sends an empty Improv result (`hush-device/src/tasks/ble.rs`) and
+      there is no serial/claimCode → UUID lookup in `hush-protocol`. `confirm.tsx`
+      reads `deviceId`/`claimCode` from a redirect URL if present (the standard
+      Improv mechanism) and otherwise gates the claim. Resolve with the PO:
+      (a) firmware returns a redirect URL carrying the deviceId, with its shape
+      pinned in `hush-protocol`, or (b) add a claim-by-code endpoint
+      (`POST /v1/devices/claim` with just `claimCode`). Recommendation: (b).
+- [ ] Bench/device pass: native build + real-firmware BLE validation across
+      iOS versions and Android API 30/31/33.
 
 ## Phase 4 — Card assignment (~1-2 weeks)
 
